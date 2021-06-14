@@ -6,6 +6,7 @@ set(SOURCES
     Bytecode/Instruction.cpp
     Bytecode/Interpreter.cpp
     Bytecode/Op.cpp
+    Bytecode/StringTable.cpp
     Console.cpp
     Heap/CellAllocator.cpp
     Heap/BlockAllocator.cpp
@@ -16,6 +17,9 @@ set(SOURCES
     Lexer.cpp
     MarkupGenerator.cpp
     Parser.cpp
+    Runtime/AggregateError.cpp
+    Runtime/AggregateErrorConstructor.cpp
+    Runtime/AggregateErrorPrototype.cpp
     Runtime/Array.cpp
     Runtime/ArrayBuffer.cpp
     Runtime/ArrayBufferConstructor.cpp
@@ -33,6 +37,9 @@ set(SOURCES
     Runtime/BooleanPrototype.cpp
     Runtime/BoundFunction.cpp
     Runtime/ConsoleObject.cpp
+    Runtime/DataView.cpp
+    Runtime/DataViewConstructor.cpp
+    Runtime/DataViewPrototype.cpp
     Runtime/DateConstructor.cpp
     Runtime/Date.cpp
     Runtime/DatePrototype.cpp
@@ -44,12 +51,18 @@ set(SOURCES
     Runtime/FunctionConstructor.cpp
     Runtime/Function.cpp
     Runtime/FunctionPrototype.cpp
+    Runtime/GeneratorObject.cpp
     Runtime/GlobalObject.cpp
     Runtime/IndexedProperties.cpp
     Runtime/IteratorOperations.cpp
     Runtime/IteratorPrototype.cpp
     Runtime/JSONObject.cpp
     Runtime/LexicalEnvironment.cpp
+    Runtime/Map.cpp
+    Runtime/MapConstructor.cpp
+    Runtime/MapIterator.cpp
+    Runtime/MapIteratorPrototype.cpp
+    Runtime/MapPrototype.cpp
     Runtime/MarkedValueList.cpp
     Runtime/MathObject.cpp
     Runtime/NativeFunction.cpp
@@ -96,6 +109,15 @@ set(SOURCES
     Runtime/TypedArrayPrototype.cpp
     Runtime/VM.cpp
     Runtime/Value.cpp
+    Runtime/WeakMap.cpp
+    Runtime/WeakMapConstructor.cpp
+    Runtime/WeakMapPrototype.cpp
+    Runtime/WeakRef.cpp
+    Runtime/WeakRefConstructor.cpp
+    Runtime/WeakRefPrototype.cpp
+    Runtime/WeakSet.cpp
+    Runtime/WeakSetConstructor.cpp
+    Runtime/WeakSetPrototype.cpp
     Runtime/WithScope.cpp
     SyntaxHighlighter.cpp
     Token.cpp

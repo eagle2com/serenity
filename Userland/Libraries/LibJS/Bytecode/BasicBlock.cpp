@@ -22,7 +22,7 @@ BasicBlock::BasicBlock(String name)
     // FIXME: This is not the smartest solution ever. Find something cleverer!
     // The main issue we're working around here is that we don't want pointers into the bytecode stream to become invalidated
     // during code generation due to dynamic buffer resizing. Otherwise we could just use a Vector.
-    m_buffer_capacity = 1 * KiB;
+    m_buffer_capacity = 4 * KiB;
     m_buffer = (u8*)mmap(nullptr, m_buffer_capacity, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
     VERIFY(m_buffer != MAP_FAILED);
 }
@@ -47,13 +47,13 @@ void BasicBlock::seal()
     // It also doesn't work because instructions that have String members use RefPtr internally which must be in writable memory.
 }
 
-void BasicBlock::dump() const
+void BasicBlock::dump(Bytecode::Executable const& executable) const
 {
     Bytecode::InstructionStreamIterator it(instruction_stream());
     if (!m_name.is_empty())
         warnln("{}:", m_name);
     while (!it.at_end()) {
-        warnln("[{:4x}] {}", it.offset(), (*it).to_string());
+        warnln("[{:4x}] {}", it.offset(), (*it).to_string(executable));
         ++it;
     }
 }

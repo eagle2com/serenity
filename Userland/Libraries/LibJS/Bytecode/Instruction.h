@@ -35,11 +35,13 @@
     O(SetVariable)                \
     O(PutById)                    \
     O(GetById)                    \
+    O(PutByValue)                 \
+    O(GetByValue)                 \
     O(Jump)                       \
     O(JumpConditional)            \
     O(JumpNullish)                \
     O(Call)                       \
-    O(EnterScope)                 \
+    O(NewFunction)                \
     O(Return)                     \
     O(BitwiseAnd)                 \
     O(BitwiseOr)                  \
@@ -56,7 +58,13 @@
     O(InstanceOf)                 \
     O(ConcatString)               \
     O(Increment)                  \
-    O(Decrement)
+    O(Decrement)                  \
+    O(Throw)                      \
+    O(PushLexicalEnvironment)     \
+    O(EnterUnwindContext)         \
+    O(LeaveUnwindContext)         \
+    O(ContinuePendingUnwind)      \
+    O(Yield)
 
 namespace JS::Bytecode {
 
@@ -73,7 +81,7 @@ public:
 
     Type type() const { return m_type; }
     size_t length() const;
-    String to_string() const;
+    String to_string(Bytecode::Executable const&) const;
     void execute(Bytecode::Interpreter&) const;
     static void destroy(Instruction&);
 

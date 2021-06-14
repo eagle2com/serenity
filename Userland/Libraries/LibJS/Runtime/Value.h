@@ -11,9 +11,12 @@
 #include <AK/BitCast.h>
 #include <AK/Format.h>
 #include <AK/Forward.h>
+#include <AK/Function.h>
+#include <AK/Result.h>
 #include <AK/String.h>
 #include <AK/Types.h>
 #include <LibJS/Forward.h>
+#include <LibJS/Runtime/BigInt.h>
 #include <math.h>
 
 // 2 ** 53 - 1
@@ -370,8 +373,30 @@ bool same_value_non_numeric(Value lhs, Value rhs);
 TriState abstract_relation(GlobalObject&, bool left_first, Value lhs, Value rhs);
 Function* get_method(GlobalObject& global_object, Value, const PropertyName&);
 size_t length_of_array_like(GlobalObject&, const Object&);
-Object* species_constructor(GlobalObject&, const Object&, Object& default_constructor);
+Function* species_constructor(GlobalObject&, const Object&, Function& default_constructor);
 Value require_object_coercible(GlobalObject&, Value);
+MarkedValueList create_list_from_array_like(GlobalObject&, Value, AK::Function<Result<void, ErrorType>(Value)> = {});
+
+struct ValueTraits : public Traits<Value> {
+    static unsigned hash(Value value)
+    {
+        VERIFY(!value.is_empty());
+        if (value.is_string())
+            return value.as_string().string().hash();
+
+        if (value.is_bigint())
+            return value.as_bigint().big_integer().hash();
+
+        if (value.is_negative_zero())
+            value = Value(0);
+
+        return u64_hash(value.encoded()); // FIXME: Is this the best way to hash pointers, doubles & ints?
+    }
+    static bool equals(const Value a, const Value b)
+    {
+        return same_value_zero(a, b);
+    }
+};
 
 }
 

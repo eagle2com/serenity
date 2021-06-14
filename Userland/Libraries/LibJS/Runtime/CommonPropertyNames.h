@@ -56,6 +56,7 @@ namespace JS {
     P(asin)                                  \
     P(asinh)                                 \
     P(assert)                                \
+    P(assign)                                \
     P(at)                                    \
     P(atan)                                  \
     P(atan2)                                 \
@@ -69,6 +70,7 @@ namespace JS {
     P(byteOffset)                            \
     P(call)                                  \
     P(callee)                                \
+    P(cause)                                 \
     P(cbrt)                                  \
     P(ceil)                                  \
     P(charAt)                                \
@@ -91,6 +93,7 @@ namespace JS {
     P(defineProperties)                      \
     P(defineProperty)                        \
     P(deleteProperty)                        \
+    P(deref)                                 \
     P(description)                           \
     P(done)                                  \
     P(dotAll)                                \
@@ -100,6 +103,7 @@ namespace JS {
     P(entries)                               \
     P(enumerable)                            \
     P(error)                                 \
+    P(errors)                                \
     P(escape)                                \
     P(eval)                                  \
     P(every)                                 \
@@ -124,19 +128,30 @@ namespace JS {
     P(fround)                                \
     P(gc)                                    \
     P(get)                                   \
+    P(getBigInt64)                           \
+    P(getBigUint64)                          \
     P(getDate)                               \
     P(getDay)                                \
+    P(getFloat32)                            \
+    P(getFloat64)                            \
     P(getFullYear)                           \
     P(getHours)                              \
+    P(getInt8)                               \
+    P(getInt16)                              \
+    P(getInt32)                              \
     P(getMilliseconds)                       \
     P(getMinutes)                            \
     P(getMonth)                              \
     P(getOwnPropertyDescriptor)              \
     P(getOwnPropertyNames)                   \
+    P(getOwnPropertySymbols)                 \
     P(getPrototypeOf)                        \
     P(getSeconds)                            \
     P(getTime)                               \
     P(getTimezoneOffset)                     \
+    P(getUint8)                              \
+    P(getUint16)                             \
+    P(getUint32)                             \
     P(getUTCDate)                            \
     P(getUTCDay)                             \
     P(getUTCFullYear)                        \
@@ -219,15 +234,25 @@ namespace JS {
     P(round)                                 \
     P(seal)                                  \
     P(set)                                   \
+    P(setBigInt64)                           \
+    P(setBigUint64)                          \
     P(setDate)                               \
+    P(setFloat32)                            \
+    P(setFloat64)                            \
     P(setFullYear)                           \
     P(setHours)                              \
+    P(setInt8)                               \
+    P(setInt16)                              \
+    P(setInt32)                              \
     P(setMilliseconds)                       \
     P(setMinutes)                            \
     P(setMonth)                              \
     P(setPrototypeOf)                        \
     P(setSeconds)                            \
     P(setTime)                               \
+    P(setUint8)                              \
+    P(setUint16)                             \
+    P(setUint32)                             \
     P(setUTCDate)                            \
     P(setUTCFullYear)                        \
     P(setUTCHours)                           \
@@ -290,16 +315,18 @@ namespace JS {
     P(writable)
 
 struct CommonPropertyNames {
-    FlyString catch_ { "catch" };
-    FlyString delete_ { "delete" };
-    FlyString for_ { "for" };
-#define __ENUMERATE(x) FlyString x { #x };
+    PropertyName catch_ { "catch", PropertyName::StringMayBeNumber::No };
+    PropertyName delete_ { "delete", PropertyName::StringMayBeNumber::No };
+    PropertyName for_ { "for", PropertyName::StringMayBeNumber::No };
+    PropertyName return_ { "return", PropertyName::StringMayBeNumber::No };
+    PropertyName throw_ { "throw", PropertyName::StringMayBeNumber::No };
+#define __ENUMERATE(x) PropertyName x { #x, PropertyName::StringMayBeNumber::No };
     ENUMERATE_STANDARD_PROPERTY_NAMES(__ENUMERATE)
 #undef __ENUMERATE
-#define __JS_ENUMERATE(x, a, b, c, t) FlyString x { #x };
+#define __JS_ENUMERATE(x, a, b, c, t) PropertyName x { #x, PropertyName::StringMayBeNumber::No };
     JS_ENUMERATE_BUILTIN_TYPES
 #undef __JS_ENUMERATE
-#define __JS_ENUMERATE(x, a) FlyString x { #x };
+#define __JS_ENUMERATE(x, a) PropertyName x { #x, PropertyName::StringMayBeNumber::No };
     JS_ENUMERATE_WELL_KNOWN_SYMBOLS
 #undef __JS_ENUMERATE
 };

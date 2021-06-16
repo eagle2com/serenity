@@ -75,6 +75,7 @@ namespace JS {
     P(ceil)                                  \
     P(charAt)                                \
     P(charCodeAt)                            \
+    P(cleanupSome)                           \
     P(clear)                                 \
     P(clz32)                                 \
     P(concat)                                \
@@ -82,6 +83,7 @@ namespace JS {
     P(console)                               \
     P(construct)                             \
     P(constructor)                           \
+    P(copyWithin)                            \
     P(cos)                                   \
     P(cosh)                                  \
     P(count)                                 \
@@ -118,6 +120,7 @@ namespace JS {
     P(fixed)                                 \
     P(flags)                                 \
     P(flat)                                  \
+    P(flatMap)                               \
     P(floor)                                 \
     P(fontcolor)                             \
     P(fontsize)                              \
@@ -125,6 +128,7 @@ namespace JS {
     P(freeze)                                \
     P(from)                                  \
     P(fromCharCode)                          \
+    P(fromEntries)                           \
     P(fround)                                \
     P(gc)                                    \
     P(get)                                   \
@@ -307,6 +311,7 @@ namespace JS {
     P(undefined)                             \
     P(unescape)                              \
     P(unicode)                               \
+    P(unregister)                            \
     P(unshift)                               \
     P(value)                                 \
     P(valueOf)                               \
@@ -318,6 +323,7 @@ struct CommonPropertyNames {
     PropertyName catch_ { "catch", PropertyName::StringMayBeNumber::No };
     PropertyName delete_ { "delete", PropertyName::StringMayBeNumber::No };
     PropertyName for_ { "for", PropertyName::StringMayBeNumber::No };
+    PropertyName register_ { "register", PropertyName::StringMayBeNumber::No };
     PropertyName return_ { "return", PropertyName::StringMayBeNumber::No };
     PropertyName throw_ { "throw", PropertyName::StringMayBeNumber::No };
 #define __ENUMERATE(x) PropertyName x { #x, PropertyName::StringMayBeNumber::No };

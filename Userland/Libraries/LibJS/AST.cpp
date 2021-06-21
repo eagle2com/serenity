@@ -773,7 +773,6 @@ Value ClassExpression::execute(Interpreter& interpreter, GlobalObject& global_ob
             return {};
         }
         class_constructor->set_constructor_kind(Function::ConstructorKind::Derived);
-        Object* prototype = Object::create_empty(global_object);
 
         Object* super_constructor_prototype = nullptr;
         if (!super_constructor.is_null()) {
@@ -787,7 +786,7 @@ Value ClassExpression::execute(Interpreter& interpreter, GlobalObject& global_ob
             if (super_constructor_prototype_value.is_object())
                 super_constructor_prototype = &super_constructor_prototype_value.as_object();
         }
-        prototype->set_prototype(super_constructor_prototype);
+        auto* prototype = Object::create(global_object, super_constructor_prototype);
 
         prototype->define_property(vm.names.constructor, class_constructor, 0);
         if (interpreter.exception())
@@ -817,20 +816,24 @@ Value ClassExpression::execute(Interpreter& interpreter, GlobalObject& global_ob
         if (interpreter.exception())
             return {};
 
+        auto property_key = key.to_property_key(global_object);
+        if (interpreter.exception())
+            return {};
+
         auto& target = method.is_static() ? *class_constructor : class_prototype.as_object();
         method_function.set_home_object(&target);
 
         switch (method.kind()) {
         case ClassMethod::Kind::Method:
-            target.define_property(key.to_property_key(global_object), method_value);
+            target.define_property(property_key, method_value);
             break;
         case ClassMethod::Kind::Getter:
             update_function_name(method_value, String::formatted("get {}", get_function_name(global_object, key)));
-            target.define_accessor(key.to_property_key(global_object), &method_function, nullptr, Attribute::Configurable | Attribute::Enumerable);
+            target.define_accessor(property_key, &method_function, nullptr, Attribute::Configurable | Attribute::Enumerable);
             break;
         case ClassMethod::Kind::Setter:
             update_function_name(method_value, String::formatted("set {}", get_function_name(global_object, key)));
-            target.define_accessor(key.to_property_key(global_object), nullptr, &method_function, Attribute::Configurable | Attribute::Enumerable);
+            target.define_accessor(property_key, nullptr, &method_function, Attribute::Configurable | Attribute::Enumerable);
             break;
         default:
             VERIFY_NOT_REACHED();
@@ -1130,29 +1133,41 @@ void BindingPattern::dump(int indent) const
 {
     print_indent(indent);
     outln("BindingPattern {}", kind == Kind::Array ? "Array" : "Object");
-    print_indent(++indent);
-    outln("(Properties)");
-    for (auto& property : properties) {
+
+    for (auto& entry : entries) {
         print_indent(indent + 1);
-        outln("(Identifier)");
-        if (property.name) {
-            property.name->dump(indent + 2);
-        } else {
+        outln("(Property)");
+
+        if (kind == Kind::Object) {
             print_indent(indent + 2);
-            outln("(None)");
+            outln("(Identifier)");
+            if (entry.name.has<NonnullRefPtr<Identifier>>()) {
+                entry.name.get<NonnullRefPtr<Identifier>>()->dump(indent + 3);
+            } else {
+                entry.name.get<NonnullRefPtr<Expression>>()->dump(indent + 3);
+            }
+        } else if (entry.is_elision()) {
+            print_indent(indent + 2);
+            outln("(Elision)");
+            continue;
         }
 
-        print_indent(indent + 1);
-        outln("(Pattern)");
-        if (property.pattern) {
-            property.pattern->dump(indent + 2);
+        print_indent(indent + 2);
+        outln("(Pattern{})", entry.is_rest ? " rest=true" : "");
+        if (entry.alias.has<NonnullRefPtr<Identifier>>()) {
+            entry.alias.get<NonnullRefPtr<Identifier>>()->dump(indent + 3);
+        } else if (entry.alias.has<NonnullRefPtr<BindingPattern>>()) {
+            entry.alias.get<NonnullRefPtr<BindingPattern>>()->dump(indent + 3);
         } else {
-            print_indent(indent + 2);
-            outln("(None)");
+            print_indent(indent + 3);
+            outln("<empty>");
         }
 
-        print_indent(indent + 1);
-        outln("(Is Rest = {})", property.is_rest);
+        if (entry.initializer) {
+            print_indent(indent + 2);
+            outln("(Initializer)");
+            entry.initializer->dump(indent + 3);
+        }
     }
 }
 
@@ -1683,7 +1698,7 @@ Value ObjectExpression::execute(Interpreter& interpreter, GlobalObject& global_o
 {
     InterpreterNodeScope node_scope { interpreter, *this };
 
-    auto* object = Object::create_empty(global_object);
+    auto* object = Object::create(global_object, global_object.object_prototype());
     for (auto& property : m_properties) {
         auto key = property.key().execute(interpreter, global_object);
         if (interpreter.exception())

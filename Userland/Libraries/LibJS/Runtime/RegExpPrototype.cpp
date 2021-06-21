@@ -6,6 +6,7 @@
  */
 
 #include <AK/Function.h>
+#include <LibJS/Runtime/AbstractOperations.h>
 #include <LibJS/Runtime/Array.h>
 #include <LibJS/Runtime/Error.h>
 #include <LibJS/Runtime/GlobalObject.h>
@@ -191,7 +192,7 @@ JS_DEFINE_NATIVE_FUNCTION(RegExpPrototype::exec)
 
     Value groups = js_undefined();
     if (result.n_named_capture_groups > 0) {
-        auto groups_object = create_empty(global_object);
+        auto groups_object = Object::create(global_object, nullptr);
         for (auto& entry : result.named_capture_group_matches[0])
             groups_object->define_property(entry.key, js_string(vm, entry.value.view.to_string()));
         groups = move(groups_object);

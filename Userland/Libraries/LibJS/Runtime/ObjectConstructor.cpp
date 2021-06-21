@@ -6,6 +6,7 @@
  */
 
 #include <AK/Function.h>
+#include <LibJS/Runtime/AbstractOperations.h>
 #include <LibJS/Runtime/Array.h>
 #include <LibJS/Runtime/Error.h>
 #include <LibJS/Runtime/GlobalObject.h>
@@ -62,16 +63,21 @@ ObjectConstructor::~ObjectConstructor()
 // 20.1.1.1 Object ( [ value ] ), https://tc39.es/ecma262/#sec-object-value
 Value ObjectConstructor::call()
 {
-    auto value = vm().argument(0);
-    if (value.is_nullish())
-        return Object::create_empty(global_object());
-    return value.to_object(global_object());
+    return construct(*this);
 }
 
 // 20.1.1.1 Object ( [ value ] ), https://tc39.es/ecma262/#sec-object-value
-Value ObjectConstructor::construct(Function&)
+Value ObjectConstructor::construct(Function& new_target)
 {
-    return call();
+    auto& vm = this->vm();
+    auto& global_object = this->global_object();
+
+    if (&new_target != this)
+        return ordinary_create_from_constructor<Object>(global_object, new_target, &GlobalObject::object_prototype);
+    auto value = vm.argument(0);
+    if (value.is_nullish())
+        return Object::create(global_object, global_object.object_prototype());
+    return value.to_object(global_object);
 }
 
 // 20.1.2.10 Object.getOwnPropertyNames ( O ), https://tc39.es/ecma262/#sec-object.getownpropertynames
@@ -191,8 +197,7 @@ JS_DEFINE_NATIVE_FUNCTION(ObjectConstructor::from_entries)
     if (vm.exception())
         return {};
 
-    auto* object = Object::create_empty(global_object);
-    object->set_prototype(global_object.object_prototype());
+    auto* object = Object::create(global_object, global_object.object_prototype());
 
     get_iterator_values(global_object, iterable, [&](Value iterator_value) {
         if (vm.exception())
@@ -344,8 +349,7 @@ JS_DEFINE_NATIVE_FUNCTION(ObjectConstructor::create)
         return {};
     }
 
-    auto* object = Object::create_empty(global_object);
-    object->set_prototype(prototype);
+    auto* object = Object::create(global_object, prototype);
 
     if (!properties.is_undefined()) {
         object->define_properties(properties);

@@ -17,6 +17,7 @@
 #include <AK/Types.h>
 #include <LibJS/Forward.h>
 #include <LibJS/Runtime/BigInt.h>
+#include <LibJS/Runtime/PrimitiveString.h>
 #include <math.h>
 
 // 2 ** 53 - 1
@@ -73,7 +74,7 @@ public:
     bool is_negative_infinity() const { return is_number() && __builtin_isinf_sign(as_double()) < 0; }
     bool is_positive_zero() const { return is_number() && bit_cast<u64>(as_double()) == 0; }
     bool is_negative_zero() const { return is_number() && bit_cast<u64>(as_double()) == NEGATIVE_ZERO_BITS; }
-    bool is_integer() const { return is_finite_number() && (i32)as_double() == as_double(); }
+    bool is_integral_number() const { return is_finite_number() && static_cast<i64>(as_double()) == as_double(); }
     bool is_finite_number() const
     {
         if (!is_number())
@@ -265,6 +266,8 @@ public:
     Value to_numeric(GlobalObject&) const;
     Value to_number(GlobalObject&) const;
     BigInt* to_bigint(GlobalObject&) const;
+    i64 to_bigint_int64(GlobalObject&) const;
+    u64 to_bigint_uint64(GlobalObject&) const;
     double to_double(GlobalObject&) const;
     StringOrSymbol to_property_key(GlobalObject&) const;
     i32 to_i32(GlobalObject& global_object) const
@@ -274,6 +277,11 @@ public:
         return to_i32_slow_case(global_object);
     }
     u32 to_u32(GlobalObject&) const;
+    i16 to_i16(GlobalObject&) const;
+    u16 to_u16(GlobalObject&) const;
+    i8 to_i8(GlobalObject&) const;
+    u8 to_u8(GlobalObject&) const;
+    u8 to_u8_clamp(GlobalObject&) const;
     size_t to_length(GlobalObject&) const;
     size_t to_index(GlobalObject&) const;
     double to_integer_or_infinity(GlobalObject&) const;
@@ -371,11 +379,6 @@ bool same_value(Value lhs, Value rhs);
 bool same_value_zero(Value lhs, Value rhs);
 bool same_value_non_numeric(Value lhs, Value rhs);
 TriState abstract_relation(GlobalObject&, bool left_first, Value lhs, Value rhs);
-Function* get_method(GlobalObject& global_object, Value, const PropertyName&);
-size_t length_of_array_like(GlobalObject&, const Object&);
-Function* species_constructor(GlobalObject&, const Object&, Function& default_constructor);
-Value require_object_coercible(GlobalObject&, Value);
-MarkedValueList create_list_from_array_like(GlobalObject&, Value, AK::Function<Result<void, ErrorType>(Value)> = {});
 
 struct ValueTraits : public Traits<Value> {
     static unsigned hash(Value value)

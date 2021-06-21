@@ -12,6 +12,11 @@
 namespace JS {
 
 #define ENUMERATE_STANDARD_PROPERTY_NAMES(P) \
+    P(__proto__)                             \
+    P(__defineGetter__)                      \
+    P(__defineSetter__)                      \
+    P(__lookupGetter__)                      \
+    P(__lookupSetter__)                      \
     P(BYTES_PER_ELEMENT)                     \
     P(BigInt)                                \
     P(Boolean)                               \
@@ -78,6 +83,7 @@ namespace JS {
     P(cleanupSome)                           \
     P(clear)                                 \
     P(clz32)                                 \
+    P(codePointAt)                           \
     P(concat)                                \
     P(configurable)                          \
     P(console)                               \
@@ -128,6 +134,7 @@ namespace JS {
     P(freeze)                                \
     P(from)                                  \
     P(fromCharCode)                          \
+    P(fromCodePoint)                         \
     P(fromEntries)                           \
     P(fround)                                \
     P(gc)                                    \
@@ -290,6 +297,7 @@ namespace JS {
     P(test)                                  \
     P(then)                                  \
     P(toDateString)                          \
+    P(toFixed)                               \
     P(toGMTString)                           \
     P(toISOString)                           \
     P(toJSON)                                \
